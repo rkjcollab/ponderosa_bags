@@ -1,0 +1,6 @@
+[submodule "PonderosaBeta"]
+	path = PonderosaBeta
+	url = git@github.com:williamscole/PonderosaBeta.git
+[submodule "phasedibd"]
+	path = phasedibd
+	url = git@github.com:23andMe/phasedibd.git
