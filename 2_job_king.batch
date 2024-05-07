@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#SBATCH --nodes=1
+#SBATCH --partition=amilan
+#SBATCH --ntasks=30
+#SBATCH --job-name="king"
+#SBATCH -o "/scratch/alpine/sslack@xsede.org/ponderosa/king_output/job_king.out"
+#SBATCH -e "/scratch/alpine/sslack@xsede.org/ponderosa/king_output/job_king.err"
+#SBATCH --account=amc-general
+
+cd /scratch/alpine/sslack@xsede.org/ponderosa
+
+# TO NOTE: can only run one at a time because output will overwrite
+
+# plink="bags_genetics/plink/bags_wgs_clean"
+plink_no_discord="bags_genetics/plink/bags_wgs_clean_no_discord"
+
+# king -b "${plink}.bed" --ibdseg
+king -b "${plink_no_discord}.bed" --ibdseg

@@ -1,0 +1,38 @@
+#!/bin/bash
+
+#SBATCH --nodes=1
+#SBATCH --partition=amilan
+#SBATCH --ntasks=64
+#SBATCH --job-name="shapeit"
+#SBATCH -o "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output/no_discord/job_shapeit_chr16-22.out"
+#SBATCH -e "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output/no_discord/job_shapeit_chr16-22.err"
+#SBATCH --account=amc-general
+#SBATCH --time=20:00:00
+
+cd /scratch/alpine/sslack@xsede.org/ponderosa
+
+plink_input="bags_genetics/plink2/bags_wgs_clean_no_discord"
+shapeit_input="shapeit_input/no_discord/bags_wgs_chr"
+shapeit_output="shapeit_output/no_discord/bags_wgs_chr"
+# batch=$(seq 1 4) # running in 4 batches
+# batch=$(seq 5 8)
+# batch=$(seq 9 15)
+batch=$(seq 16 22)
+
+
+# Now that input has pedigree information, SHAPEIT requiring the --duohmm flag to phase complex pedigrees.
+# This leads to high SNP missingness, instead try --noped.
+for chr in $batch; do
+
+	plink2 \
+		--bfile "$plink_input" \
+		--chr $chr --make-bed \
+		--out "${shapeit_input}${chr}"
+
+
+	shapeit \
+		--input-bed "${shapeit_input}${chr}.bed" "${shapeit_input}${chr}.bim" "${shapeit_input}${chr}.fam" \
+		--input-map "/projects/sslack@xsede.org/genetic_maps/hg38/chr${chr}.b38.gmap.gz" \
+		--output-max "${shapeit_output}${chr}.phased.haps" "${shapeit_output}${chr}.phased.sample" \
+		--noped --thread 60
+done

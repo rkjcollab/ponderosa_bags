@@ -1,0 +1,42 @@
+#!/bin/bash
+
+#SBATCH --nodes=1
+#SBATCH --partition=amilan
+#SBATCH --ntasks=12
+#SBATCH --job-name="map"
+#SBATCH -o "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output_mod/job_interpolate_map.out"
+#SBATCH -e "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output_mod/job_interpolate_map.err"
+#SBATCH --account=amc-general
+
+cd /scratch/alpine/sslack@xsede.org/ponderosa
+
+input_haps_prefix="shapeit_output/bags_wgs_chr"  # dir and filename prefix"
+out_dir="shapeit_output_mod"
+
+module load anaconda
+conda activate ponderosa
+
+for chr in {1..22}; do
+	# Unzip and convert genetic map
+#	gmap_zip="/projects/sslack@xsede.org/genetic_maps/hg38/chr${chr}.b38.gmap.gz"
+#	gmap_temp="/projects/sslack@xsede.org/genetic_maps/hg38_txt/chr${chr}.b38.gmap.temp.txt"
+	gmap="/projects/sslack@xsede.org/genetic_maps/hg38_txt/chr${chr}.b38.gmap.txt"
+
+	# Remove header from genetic map and convert to txt
+	# gunzip -c "$gmap_zip" > "$gmap_temp"
+	# tail -n +2 "$gmap_temp" > "$gmap"
+	# rm "$gmap_temp"
+
+	# Interpolate map
+	python /home/sslack@xsede.org/code/ponderosa/PonderosaBeta/pedigree_tools.py \
+ 		-interpolate \
+		-input_map "${out_dir}/${chr}.phased.plink.map" \
+		-genetic_map "$gmap" \
+		-columns 1 0 2
+
+done
+
+# Concatenate all
+cd $out_dir
+ls *_interpolated.map | sort -V > interpolated_map_list.txt
+cat $(cat interpolated_map_list.txt) > chr.all.concat.plink_interpolated.map

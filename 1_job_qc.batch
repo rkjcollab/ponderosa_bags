@@ -1,0 +1,70 @@
+#!/bin/bash
+
+#SBATCH --nodes=1
+#SBATCH --partition=amilan
+#SBATCH --ntasks=12
+#SBATCH --job-name="qc"
+#SBATCH -o "/scratch/alpine/sslack@xsede.org/ponderosa/bags_genetics/job_qc.out"
+#SBATCH -e "/scratch/alpine/sslack@xsede.org/ponderosa/bags_genetics/job_qc.err"
+#SBATCH --account=amc-general
+
+cd /scratch/alpine/sslack@xsede.org/ponderosa
+
+plink2_input="bags_genetics/plink2/bags_wgs_snpsonly_no_info_sorted_chrpos_var_ids"
+plink_output="bags_genetics/plink/bags_wgs_clean"
+plink2_output="bags_genetics/plink2/bags_wgs_clean"
+new_fam="bags_genetics/fam_with_pedigree.txt"
+discord_ids="bags_genetics/ids_with_discordant_parents.txt"
+update_ids="bags_genetics/ids_topmed_to_barnes.txt"
+
+# Make files to filter IDs, update sex, and updated parents
+awk 'NR > 1 {print $1, $2}' "${new_fam}" > "${plink2_input}_filter_ids.txt"
+awk 'NR > 1 {print $1, $2, $5}' "${new_fam}" > "${plink2_input}_update_sex.txt"
+awk 'NR > 1 {print $1, $2, $3, $4}' "${new_fam}" > "${plink2_input}_update_parents.txt"
+
+# Use PLINK2 to filter to only FID/IID with pedigree and update .fam to
+# have pedigree information and sex
+plink2 \
+	--pfile "$plink2_input" \
+	--update-ids "$update_ids" \
+	--keep "${plink2_input}_filter_ids.txt" \
+	--make-pgen --maf 0.05 --hwe 0.000001 \
+	--out "${plink2_output}_temp"
+
+plink2 \
+	--pfile "${plink2_output}_temp" \
+	--update-sex "${plink2_input}_update_sex.txt" \
+	--update-parents "${plink2_input}_update_parents.txt" \
+	--make-bed --keep-allele-order \
+	--out "${plink_output}_temp"
+
+# Make two versions of each, one with all IDs and one with the individuals
+# with discordant parental IDs removed
+
+# PLINK1.9 for KING since ref to be major allele
+plink \
+        --bfile "${plink_output}_temp" \
+        --make-bed \
+        --out "${plink_output}"
+
+plink \
+        --bfile "${plink_output}_temp" \
+        --remove "$discord_ids" \
+	--make-bed \
+        --out "${plink_output}_no_discord"
+
+# PLINK2 for SHAPEIT to keep ref/alt from VCF
+plink2 \
+	--bfile "${plink_output}_temp" \
+	--make-bed --keep-allele-order \
+	--out "${plink2_output}"
+
+plink2 \
+        --bfile "${plink_output}_temp" \
+	--remove "$discord_ids" \
+        --make-bed --keep-allele-order \
+        --out "${plink2_output}_no_discord"
+
+# Clean up
+rm ${plink_output}_temp*
+rm ${plink2_output}_temp*

@@ -1,0 +1,52 @@
+#!/bin/bash
+
+#SBATCH --nodes=1
+#SBATCH --partition=amilan
+#SBATCH --ntasks=30
+#SBATCH --job-name="add_ped"
+#SBATCH -o "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output_mod/no_discord/job_add_pedigree.out"
+#SBATCH -e "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output_mod/no_discord/job_add_pedigree.err"
+#SBATCH --account=amc-general
+
+cd /scratch/alpine/sslack@xsede.org/ponderosa
+
+input_haps_prefix="shapeit_output/no_discord/bags_wgs_chr"  # dir and filename prefix
+out_dir="shapeit_output_mod/no_discord"
+plink2_input="bags_genetics/plink2/bags_wgs_snpsonly_no_info_sorted_chrpos_var_ids"
+update_ids="bags_genetics/ids_topmed_to_barnes.txt"
+
+awk '{print 0, $4, $3, $4}' "${update_ids}" > "${out_dir}/ids_add_fid.txt"
+
+module load anaconda
+conda activate ponderosa
+
+for chr in {1..22}; do
+	# Convert haps/sample to VCF
+ 	shapeit -convert \
+		--input-haps "${input_haps_prefix}${chr}.phased" \
+		--output-vcf "${out_dir}/${chr}.phased.vcf" \
+		--thread "$SLURM_NTASKS"
+
+	# Use pedigree to add FIDs, update parents and sex
+	# To note: after SHAPEIT convert, only IID is present
+	plink2 \
+		--vcf "${out_dir}/${chr}.phased.vcf" \
+		--update-ids "${out_dir}/ids_add_fid.txt" \
+		--make-pgen \
+		--out "${out_dir}/${chr}_temp"
+	# Write out as PLINK1.9 (need .fam for Ponderosa)
+	plink2 \
+		--pfile "${out_dir}/${chr}_temp" \
+		--update-sex "${plink2_input}_update_sex.txt" \
+		--update-parents "${plink2_input}_update_parents.txt" \
+		--make-bed --keep-allele-order \
+		--out "${out_dir}/${chr}.phased.plink"
+
+	# Convert to PLINK map file (need for phasedibd)
+	plink2 --bfile "${out_dir}/${chr}.phased.plink" \
+		--export 'ped' \
+		--out "${out_dir}/${chr}.phased.plink"
+
+done
+
+rm "${out_dir}/*_temp*"

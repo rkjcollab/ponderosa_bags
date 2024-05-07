@@ -1,0 +1,31 @@
+#!/bin/bash
+
+#SBATCH --nodes=1
+#SBATCH --partition=amilan
+#SBATCH --ntasks=30
+#SBATCH --job-name="pibd"
+#SBATCH -o "/scratch/alpine/sslack@xsede.org/ponderosa/phasedibd_output/no_discord/job_phased_ibd.out"
+#SBATCH -e "/scratch/alpine/sslack@xsede.org/ponderosa/phasedibd_output/no_discord/job_phased_ibd.err"
+#SBATCH --account=amc-general
+
+cd /scratch/alpine/sslack@xsede.org/ponderosa
+
+input_dir="shapeit_output_mod/no_discord"
+out_dir="phasedibd_output/no_discord"
+
+module load anaconda
+conda activate ponderosa
+
+for chr in {1..22}; do
+ 	python /home/sslack@xsede.org/code/ponderosa/PonderosaBeta/pedigree_tools.py \
+ 		-phasedibd \
+		-input_vcf "${input_dir}/${chr}.phased.vcf" \
+		-input_map "${input_dir}/${chr}.phased.plink_interpolated.map" \
+		-output "${out_dir}/chr${chr}.phasedibd.txt"
+
+done
+
+# Concatenate all
+cd $out_dir
+ls *.phasedibd.txt | sort -V > phasedibd_list.txt
+awk 'FNR>1 || NR==1' $(cat phasedibd_list.txt) > chr.all.concat.phasedibd.txt

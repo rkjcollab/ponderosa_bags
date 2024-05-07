@@ -1,0 +1,45 @@
+#!/bin/bash
+
+#SBATCH --nodes=1
+#SBATCH --partition=amilan
+#SBATCH --ntasks=4
+#SBATCH --job-name="pond"
+#SBATCH -o "/scratch/alpine/sslack@xsede.org/ponderosa/ponderosa_output/all_chr_no_discord_debug/job_ponderosa.out"
+#SBATCH -e "/scratch/alpine/sslack@xsede.org/ponderosa/ponderosa_output/all_chr_no_discord_debug/job_ponderosa.err"
+
+data_dir="/scratch/alpine/sslack@xsede.org/ponderosa"
+cd /home/sslack@xsede.org/code/ponderosa/PonderosaBeta
+
+# ibd="${data_dir}/phasedibd_output/chr1.phasedibd.txt"
+ibd="${data_dir}/phasedibd_output/no_discord/chr.all.concat.phasedibd.txt"
+plink_dir="${data_dir}/shapeit_output_mod/no_discord"
+king="${data_dir}/king_output/no_discord/king.seg"
+# map="${data_dir}/shapeit_output_mod/chr1.phased.plink_interpolated.map"
+map="${data_dir}/shapeit_output_mod/no_discord/chr.all.concat.plink_interpolated.map"
+# map_list="${data_dir}/shapeit_output_mod/interpolated_map_list.txt"
+# map_dir="${data_dir}/shapeit_output_mod"
+
+module load anaconda
+conda activate ponderosa
+
+# Merge by chr PLINK files after phasing
+# for chr in {1..22}; do
+#    	echo "${plink_dir}/${chr}.phased.plink" >> "${plink_dir}/phased_plink_list.txt"
+# done
+# plink --merge-list "${plink_dir}/phased_plink_list.txt" \
+#   	--keep-allele-order --make-bed \
+#   	--out "${plink_dir}/chr.all.phased.plink"
+
+# Add "chr" to by chr map files
+# while read file; do
+# 	cp "${map_dir}/${file}" "${map_dir}/chr${file}"
+# done < "$map_list"
+
+# Run Ponderosa, add --debug to troubleshoot
+python Ponderosa.py \
+	--ibd "$ibd" \
+	--fam "${plink_dir}/chr.all.phased.plink.fam" \
+	--king "$king" \
+	--map "$map" \
+	--output "${data_dir}/ponderosa_output/all_chr_debug/bags_wgs_no_discord_debug" \
+	--debug
