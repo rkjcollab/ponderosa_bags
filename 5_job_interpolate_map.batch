@@ -4,14 +4,14 @@
 #SBATCH --partition=amilan
 #SBATCH --ntasks=12
 #SBATCH --job-name="map"
-#SBATCH -o "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output_mod/job_interpolate_map.out"
-#SBATCH -e "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output_mod/job_interpolate_map.err"
+#SBATCH -o "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output_mod/no_discord/job_interpolate_map.out"
+#SBATCH -e "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output_mod/no_discord/job_interpolate_map.err"
 #SBATCH --account=amc-general
 
 cd /scratch/alpine/sslack@xsede.org/ponderosa
 
-input_haps_prefix="shapeit_output/bags_wgs_chr"  # dir and filename prefix"
-out_dir="shapeit_output_mod"
+input_haps_prefix="shapeit_output/no_discord/bags_wgs_chr"  # dir and filename prefix
+out_dir="shapeit_output_mod/no_discord"
 
 module load anaconda
 conda activate ponderosa
@@ -28,11 +28,11 @@ for chr in {1..22}; do
 	# rm "$gmap_temp"
 
 	# Interpolate map
-	python /home/sslack@xsede.org/code/ponderosa/PonderosaBeta/pedigree_tools.py \
+	python /home/sslack@xsede.org/repos/ponderosa_bags/PonderosaBeta/pedigree_tools.py \
  		-interpolate \
 		-input_map "${out_dir}/${chr}.phased.plink.map" \
 		-genetic_map "$gmap" \
-		-columns 1 0 2
+		-columns 1 2 0
 
 done
 
