@@ -4,14 +4,14 @@
 #SBATCH --partition=amilan
 #SBATCH --ntasks=30
 #SBATCH --job-name="pibd"
-#SBATCH -o "/scratch/alpine/sslack@xsede.org/ponderosa/phasedibd_output/no_discord_with_phase_corr/job_phased_ibd.out"
-#SBATCH -e "/scratch/alpine/sslack@xsede.org/ponderosa/phasedibd_output/no_discord_with_phase_corr/job_phased_ibd.err"
+#SBATCH -o "/scratch/alpine/sslack@xsede.org/ponderosa/phasedibd_output/with_phase_corr/job_phased_ibd.out"
+#SBATCH -e "/scratch/alpine/sslack@xsede.org/ponderosa/phasedibd_output/with_phase_corr/job_phased_ibd.err"
 #SBATCH --account=amc-general
 
 cd /scratch/alpine/sslack@xsede.org/ponderosa
 
-input_dir="shapeit_output_mod/no_discord"
-out_dir="phasedibd_output/no_discord_with_phase_corr"
+input_dir="shapeit_output_mod"
+out_dir="phasedibd_output/with_phase_corr"
 
 module load anaconda
 conda activate ponderosa

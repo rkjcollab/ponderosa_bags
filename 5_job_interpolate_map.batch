@@ -4,14 +4,14 @@
 #SBATCH --partition=amilan
 #SBATCH --ntasks=12
 #SBATCH --job-name="map"
-#SBATCH -o "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output_mod/no_discord/job_interpolate_map.out"
-#SBATCH -e "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output_mod/no_discord/job_interpolate_map.err"
+#SBATCH -o "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output_mod/job_interpolate_map.out"
+#SBATCH -e "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output_mod/job_interpolate_map.err"
 #SBATCH --account=amc-general
 
 cd /scratch/alpine/sslack@xsede.org/ponderosa
 
-input_haps_prefix="shapeit_output/no_discord/bags_wgs_chr"  # dir and filename prefix
-out_dir="shapeit_output_mod/no_discord"
+input_haps_prefix="shapeit_output/bags_wgs_chr"  # dir and filename prefix
+out_dir="shapeit_output_mod"
 
 module load anaconda
 conda activate ponderosa

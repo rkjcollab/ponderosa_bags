@@ -4,20 +4,21 @@
 #SBATCH --partition=amilan
 #SBATCH --ntasks=64
 #SBATCH --job-name="shapeit"
-#SBATCH -o "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output/no_discord/job_shapeit_chr1-4.out"
-#SBATCH -e "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output/no_discord/job_shapeit_chr1-4.err"
+#SBATCH -o "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output/job_shapeit_chr16-22.out"
+#SBATCH -e "/scratch/alpine/sslack@xsede.org/ponderosa/shapeit_output/job_shapeit_chr16-22.err"
 #SBATCH --account=amc-general
-#SBATCH --time=20:00:00
+#SBATCH --time=15:00:00
+#SBATCH --mem=30G
 
 cd /scratch/alpine/sslack@xsede.org/ponderosa
 
-plink_input="bags_genetics/plink2/bags_wgs_clean_no_discord"
-shapeit_input="shapeit_input/no_discord/bags_wgs_chr"
-shapeit_output="shapeit_output/no_discord/bags_wgs_chr"
-batch=$(seq 1 4) # running in 4 batches
+plink_input="bags_genetics/plink2/bags_wgs_clean"
+shapeit_input="shapeit_input/bags_wgs_chr"
+shapeit_output="shapeit_output/bags_wgs_chr"
+# batch=$(seq 1 4) # running in 4 batches
 # batch=$(seq 5 8)
 # batch=$(seq 9 15)
-# batch=$(seq 16 22)
+batch=$(seq 16 22)
 
 
 # Now that input has pedigree information, SHAPEIT requiring the --duohmm flag to phase complex pedigrees.
