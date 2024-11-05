@@ -1,0 +1,15 @@
+#### Example usage:
+
+bash run_ibis.sh [ibis executable] [plink file prefix] [# of cpus]
+
+e.g.,
+bash run_ibis.sh ~/ibis/ibis Himba 16 where Himba.[bed][bim][fam] is in the directory and .bim has its genetic map coordinates filled out
+
+
+bash run_crest.sh [crest directory without trailing forward slash] [genome len in cM] [bim file]
+
+bash run_crest.sh ~/crest 3346.254639 Himba.bim 
+
+#### Himba details
+
+genome_len = 3346.254639
