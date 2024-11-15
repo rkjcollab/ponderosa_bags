@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Available CPUs
-cpus=16
+cpus=8
 
 bprefix="tmp/tmp"
 
