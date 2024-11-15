@@ -1,6 +1,6 @@
 #!/bin/bash
 
-bfile="/gpfs/data/sramacha/projects_dev/ponderosa/himba_benchmarks/tmp/chr1"
+bfile="${RKJCOLLAB}/Collabs/ponderosa/data/bags_genetics/plink1/bags_wgs_clean"
 mkdir -p tmp
 
 if [[ $bfile == *"chr1"* ]]; then
